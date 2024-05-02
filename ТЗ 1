@@ -1,7 +1,17 @@
 #!/bin/bash
-files_list=$(find "$1" -maxdepth 1 -type f)   #получение списка файлов, находящихся непосредственно во входной директории
-files="$2"
-#копирование всех файлов, вложенных во входную директорию, в выходную директорию
+mkdir files_list
+for entry in "$1"; do   #получение списка файлов, находящихся непосредственно во входной директории
+    if [[ -f "$entry" ]]; then
+        cp "$entry" "$files_list"
+    fi
+done
+mkdir directories_list
+for entry in "$1"; do   #получение списка директорий, находящихся во входной директории
+    if [[ -d "$entry" ]]; then
+        cp "$entry" "$directories_list"
+    fi
+done
+mkdir files
 copy_files() {
     for entry in "$1"; do
         if [[ -d "$entry" ]]; then
@@ -11,16 +21,16 @@ copy_files() {
         fi
     done
 }
-copy_files "$1" "$files"
+copy_files "$1" "$files"   #получение списка всех файлов, вложенных во входную директорию
 for file in $files; do
     base_name=$(basename "$file")
-    output_file="$files/$base_name"
-    if [ -e "$output_file" ]; then   #присваивание уникального названия файлам, названия которых уже есть в выходной директории
+    output_file="$2/$base_name"
+    if [ -e "$output_file" ]; then   #присваивание уникального названия файлам, название которых уже есть в выходной директории, с помощью времени
         extension="${base_name##*.}"
         filename="${base_name%.*}"
         unique_filename="${filename}_$(date +%s).$extension"
         cp "$file" "$2/$unique_filename"
     else
-        cp "$file" "$2"
+        cp "$file" "$2"   #копирование всех файлов, вложенных во входную директорию, в выходную директорию
     fi
 done
